@@ -1,4 +1,4 @@
-Benchmark LCP solvers on saved problems.
+Benchmark LCP solvers on difficult contact problems.
 
 Solvers
 -------
