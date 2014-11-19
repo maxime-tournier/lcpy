@@ -14,6 +14,7 @@ def residual_norm( (M, q) ):
 
     return res
 
+
 def energy_norm( (M, q), lower_bound = 0 ):
     """energy norm metric"""
     n = q.size()
@@ -25,6 +26,7 @@ def energy_norm( (M, q), lower_bound = 0 ):
         return math.sqrt(x.dot(r) - lower_bound)
 
     return res
+
 
 def lcp_error( (M, q) ):
     """primal + dual + complementarity error norms"""
