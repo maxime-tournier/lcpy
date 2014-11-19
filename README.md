@@ -1,5 +1,26 @@
 Benchmark LCP solvers on difficult contact problems.
 
+Requires python >= 2.7, numpy and matplotlib.
+
+Usage
+-----
+
+```$ python main.py -h
+usage: main.py [-h] [--iter ITER] [--eps EPS] file
+
+benchmark LCP solvers.
+
+positional arguments:
+  file         filename for LCP data
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --iter ITER  iteration count
+  --eps EPS    precision
+```
+
+
+
 Solvers
 -------
 
@@ -19,6 +40,12 @@ Metrics
 Data Format
 -----------
 
-TODO
+Data files are plaintext files, with:
+
+- first line: dimension (1 integer)
+- n next lines: matrix (n lines of n floats)
+- last line: vector (1 line of n floats)
+
+
 
 
