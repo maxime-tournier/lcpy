@@ -1,4 +1,4 @@
-
+"""matrix-splitting iterations"""
 
 import numpy as np
 import math
