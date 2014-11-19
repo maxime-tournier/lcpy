@@ -1,11 +1,12 @@
 Benchmark LCP solvers on difficult contact problems.
 
-Requires python >= 2.7, numpy and matplotlib.
+Requires Python >= 2.7, NumPy and matplotlib.
 
 Usage
 -----
 
-```$ python main.py -h
+```
+$ python main.py -h
 usage: main.py [-h] [--iter ITER] [--eps EPS] file
 
 benchmark LCP solvers.
