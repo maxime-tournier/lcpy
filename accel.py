@@ -9,9 +9,11 @@ from itertools import izip
 def crossing(x, y):
     return  ( (-xi / (yi - xi)) if (xi - yi != 0) else 1 for xi, yi in izip(x, y) )
 
+
 def alpha(x, y):
     func = lambda x, y: y if (y > 0 and y < x) else x
     return reduce(func, crossing(x, y), 1)
+
 
 def nlnscg( solver, **kwargs ):
 
