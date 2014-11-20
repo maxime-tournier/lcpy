@@ -13,10 +13,15 @@ def parse_args():
     import argparse
 
     parser = argparse.ArgumentParser(description='benchmark LCP solvers.')
-    parser.add_argument('file', help='filename for LCP data')
+    parser.add_argument('file', nargs='+', help='filename for LCP data')
     parser.add_argument('--iter', type=int, default=100,
                         help='iteration count')
-
+    parser.add_argument('--fontsize', type=int, default=8,
+                        help='font size in plot')
+    
+    parser.add_argument('--nolegend', action='store_true',
+                        help='disable legend in plots')
+    
     parser.add_argument('--eps', type=float, default=1e-8,
                    help='precision')
 
@@ -33,48 +38,67 @@ def pjacobi(x, (M, q)):
     """PJacobi"""
     return splitting.pjacobi(x, M, -q)
 
-
 args = parse_args()
 
-(M, q) = lcp.load( args.file )
+# params
 iterations = args.iter
 precision = args.eps
 
-# solver list
-solvers = [pgs, pjacobi,
-           accel.nlnscg(pgs),
-           accel.nlnscg(pgs, metric = np.diag(M) ),
-           accel.nlnscg(pjacobi),
-           accel.nlnscg(pjacobi, metric = np.diag(M) ),
-]
-
-# error metric 
-error = metric.lcp_merit( (M, q) )
+cols = min(3, len(args.file) )
+rows = len(args.file) / cols 
 
 
+import matplotlib
 from matplotlib import pyplot as plt
 
-print 'file:', args.file
+for param in [ 'axes.titlesize',
+               'axes.labelsize',
+               'xtick.labelsize',
+               'ytick.labelsize',
+               'legend.fontsize' ]:
+    matplotlib.rcParams[param] = args.fontsize
 
-for s in solvers:
+_, plots = plt.subplots(rows, cols)
 
-    name = s.__doc__
-
-    run = lcp.bench( (M, q), s,
-                     iterations = iterations,
-                     precision = precision,
-                     metric = error )
+for i, f in enumerate(args.file):
     
-    print 'running {}...'.format(name), 
-    data = [e for k, e in run]
-    print 'ok'
+    (M, q) = lcp.load( f )
     
-    plt.plot( data, label = name )
+    # solver list
+    solvers = [pgs, pjacobi,
+               accel.nlnscg(pgs),
+               accel.nlnscg(pgs, metric = np.diag(M) ),
+               accel.nlnscg(pjacobi),
+               accel.nlnscg(pjacobi, metric = np.diag(M) ),
+    ]
 
+    # error metric 
+    error = metric.lcp_merit( (M, q) )
 
-plt.yscale('log')
-plt.legend()
-plt.title( error.__doc__.title() )
+    print 'file:', f
+    print 'dim:', q.size
+    print 'metric:', error.__doc__
+
+    p = plots[ i / cols, i % cols ] if rows > 1 else plots[ i ] if cols > 1 else plots
+    
+    for s in solvers:
+
+        name = s.__doc__
+
+        run = lcp.bench( (M, q), s,
+                         iterations = iterations,
+                         precision = precision,
+                         metric = error )
+
+        print '\t{}...'.format(name), 
+        data = [e for k, e in run]
+        print '\tit: {} \t eps: {:.2e}'.format(len(data), data[-1])
+
+        p.plot( data, label = name )
+        p.set_title('{} (n = {})'.format(f, q.size))
+        p.set_yscale('log')
+        if not args.nolegend: p.legend()
+
 plt.show()
-    
-                          
+
+
