@@ -1,4 +1,6 @@
-Benchmark LCP solvers on difficult contact problems. Requires Python >= 2.7, NumPy and matplotlib.
+Benchmark LCP solvers on difficult contact problems.
+
+Requires Python >= 2.7, NumPy and matplotlib.
 
 Usage
 -----
