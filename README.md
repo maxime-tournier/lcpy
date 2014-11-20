@@ -1,6 +1,5 @@
-Benchmark LCP solvers on difficult contact problems.
-
-Requires Python >= 2.7, NumPy and matplotlib.
+Benchmark LCP solvers on difficult contact problems. Requires Python
+>= 2.7, NumPy and matplotlib.
 
 Usage
 -----
@@ -42,7 +41,6 @@ Data Format
 -----------
 
 Data files are plaintext files, with:
-
 - first line: dimension (1 integer)
 - n next lines: matrix (n lines of n floats)
 - last line: vector (1 line of n floats)

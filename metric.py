@@ -53,7 +53,7 @@ def lcp_error( (M, q) ):
 
 
 
-def lcp_merit( (M, q) ):
+def lcp_merit( (M, q), **kwargs ):
     """
     a positive convex merit function for LCP: norm( min(Mx + q, x) )
     
@@ -64,12 +64,14 @@ def lcp_merit( (M, q) ):
     n = q.size
     r = np.zeros(n)
     m = np.zeros(n)
+    d = kwargs.get('metric', np.ones(n))
     
     def res(x):
-        """merit norm"""
+        
         r[:] = q + M.dot(x)
         m[:] = np.minimum(x, r)
         
-        return math.sqrt(m.dot(m))
+        return math.sqrt(m.dot(d * m))
 
+    res.__doc__ = """merit norm{}""".format('*' if 'metric' in kwargs else '' )
     return res

@@ -9,9 +9,9 @@ import math
 import metric
 import accel
 
-import argparse
-
 def parse_args():
+    import argparse
+
     parser = argparse.ArgumentParser(description='benchmark LCP solvers.')
     parser.add_argument('file', help='filename for LCP data')
     parser.add_argument('--iter', type=int, default=100,
@@ -40,10 +40,13 @@ args = parse_args()
 iterations = args.iter
 precision = args.eps
 
-
 # solver list
 solvers = [pgs, pjacobi,
-           accel.nlnscg(pgs), accel.nlnscg(pjacobi) ]
+           accel.nlnscg(pgs),
+           accel.nlnscg(pgs, metric = np.diag(M) ),
+           accel.nlnscg(pjacobi),
+           accel.nlnscg(pjacobi, metric = np.diag(M) ),
+]
 
 # error metric 
 error = metric.lcp_merit( (M, q) )
