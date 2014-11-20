@@ -3,6 +3,16 @@
 import numpy as np
 import math
 
+
+from itertools import izip
+
+def crossing(x, y):
+    return  ( (-xi / (yi - xi)) if (xi - yi != 0) else 1 for xi, yi in izip(x, y) )
+
+def alpha(x, y):
+    func = lambda x, y: y if (y > 0 and y < x) else x
+    return reduce(func, crossing(x, y), 1)
+
 def nlnscg( solver, **kwargs ):
 
     def res(x, (M, q)):
@@ -20,12 +30,13 @@ def nlnscg( solver, **kwargs ):
         old[:] = x
         for error in sub:
             yield error
-            if error == 0: break
             
             grad[:] = old - x
             old_grad2 = grad2
             
             grad2 = grad.dot( d * grad)
+            if grad2 == 0: break
+            
             beta = grad2 / old_grad2
 
             if beta > 1:
@@ -41,15 +52,6 @@ def nlnscg( solver, **kwargs ):
                                           solver.__doc__ )
     
     return res
-
-from itertools import izip
-
-def crossing(x, y):
-    return  ( (-xi / (yi - xi)) if (xi != yi) else 1 for xi, yi in izip(x, y) )
-
-def alpha(x, y):
-    func = lambda x, y: y if (y > 0 and y < x) else x
-    return reduce(func, crossing(x, y), 1)
 
 
 def anderson( solver, m = 4, **kwargs ):

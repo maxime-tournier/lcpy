@@ -65,15 +65,13 @@ for i, f in enumerate(args.file):
     (M, q) = lcp.load( f )
     
     # solver list
-    solvers = [pgs, pjacobi,
+    solvers = [pgs,
                accel.nlnscg(pgs),
                accel.nlnscg(pgs, metric = np.diag(M) ),
-               accel.nlnscg(pjacobi),
-               accel.nlnscg(pjacobi, metric = np.diag(M) ),
     ]
 
     # error metric 
-    error = metric.lcp_merit( (M, q) )
+    error = metric.minimum_norm( (M, q)  )
 
     print 'file:', f
     print 'dim:', q.size

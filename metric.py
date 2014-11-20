@@ -53,7 +53,7 @@ def lcp_error( (M, q) ):
 
 
 
-def lcp_merit( (M, q), **kwargs ):
+def minimum_norm( (M, q), **kwargs ):
     """
     a positive convex merit function for LCP: norm( min(Mx + q, x) )
     
@@ -73,5 +73,5 @@ def lcp_merit( (M, q), **kwargs ):
         
         return math.sqrt(m.dot(d * m))
 
-    res.__doc__ = """merit norm{}""".format('*' if 'metric' in kwargs else '' )
+    res.__doc__ = """primal/dual minimum norm{}""".format('*' if 'metric' in kwargs else '' )
     return res
