@@ -45,7 +45,7 @@ iterations = args.iter
 precision = args.eps
 
 cols = min(3, len(args.file) )
-rows = len(args.file) / cols 
+rows = int(math.ceil(len(args.file) / float(cols)))
 
 
 import matplotlib
@@ -60,16 +60,22 @@ for param in [ 'axes.titlesize',
 
 _, plots = plt.subplots(rows, cols)
 
+
+def solvers( (M, q) ):
+    """solver list"""
+    
+    return [pgs,
+            accel.nlnscg(pgs),
+            # accel.nlnscg(pgs, metric = np.diag(M) ),
+            accel.nlnscg(pgs, metric = np.diag(M), omega = 1.4 ),
+        ]
+
+
+
 for i, f in enumerate(args.file):
     
     (M, q) = lcp.load( f )
     
-    # solver list
-    solvers = [pgs,
-               accel.nlnscg(pgs),
-               accel.nlnscg(pgs, metric = np.diag(M) ),
-    ]
-
     # error metric 
     error = metric.minimum_norm( (M, q)  )
 
@@ -79,7 +85,7 @@ for i, f in enumerate(args.file):
 
     p = plots[ i / cols, i % cols ] if rows > 1 else plots[ i ] if cols > 1 else plots
     
-    for s in solvers:
+    for s in solvers( (M, q) ):
 
         name = s.__doc__
 

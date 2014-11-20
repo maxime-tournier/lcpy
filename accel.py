@@ -24,6 +24,8 @@ def nlnscg( solver, **kwargs ):
         p = np.zeros(n)
         old = np.zeros(n)
         grad2 = 1
+
+        omega = kwargs.get('omega', 1)
         
         sub = solver(x, (M, q))
         
@@ -42,9 +44,10 @@ def nlnscg( solver, **kwargs ):
             if beta > 1:
                 p[:] = np.zeros(n)
             else:
-                x += beta * p
                 p[:] = beta * p - grad
-
+                x[:] = old + omega * p
+                                
+                
             old[:] = x
 
     
