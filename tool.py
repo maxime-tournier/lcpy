@@ -3,9 +3,17 @@
 import numpy as np
 import metric
 
-def load(filename):
+import gzip
+
+def load_lcp(filename):
     """load lcp from file"""
-    with open(filename) as f:
+
+    ext = filename.split('.')[-1]
+
+    import gzip
+    method = gzip.open if ext == 'gz' else open
+    
+    with method(filename) as f:
         n = int(f.readline())
 
         M = np.zeros((n, n))
@@ -17,8 +25,15 @@ def load(filename):
 
         return M, q
 
+def load_vec(filename):
+    ext = filename.split('.')[-1]
 
+    import gzip
+    method = gzip.open if ext == 'gz' else open
 
+    with method(filename) as f:
+        return np.array( map(float, f.readline().split()) )
+    
 
 from itertools import izip
 
@@ -31,7 +46,7 @@ def bench(lcp, solver, **kwargs):
     precision = kwargs.get('precision', 0)
     error = kwargs.get('metric', metric.residual_norm( lcp ) )
 
-    x = kwargs.get('initial', np.zeros(n))
+    x = np.copy( kwargs.get('initial', np.zeros(n)) )
 
     yield 0, error(x)
     

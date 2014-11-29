@@ -28,26 +28,38 @@ def energy_norm( (M, q), lower_bound = 0 ):
     return res
 
 
-def lcp_error( (M, q) ):
+def lcp_error( (M, q), **kwargs):
     """primal + dual + complementarity error norms"""
 
     n = q.size
 
-    primal = np.zeros(n)
-    dual = np.zeros(n)
+    p = np.zeros(n)
+    d = np.zeros(n)
     
     zero = np.zeros(n)
+
+    primal = kwargs.get('primal', True)
+    dual = kwargs.get('dual', True)
+    compl = kwargs.get('compl', True)
     
     def res(x):
-        """primal + dual + complementarity error norms"""
-        primal[:] = q + M.dot(x)
+        p[:] = q + M.dot(x)
 
-        compl = math.fabs( primal.dot( x ) )
-        
-        primal[:] = np.minimum( primal, zero )
-        dual[:] = np.minimum( x, zero )
+        c = math.fabs( p.dot( x ) )
 
-        return math.sqrt(primal.dot(primal)) + math.sqrt(dual.dot(dual)) + math.sqrt( compl )
+        p[:] = np.minimum( p, zero )
+        d[:] = np.minimum( x, zero )
+
+        s = 0
+        if primal: s += math.sqrt(p.dot(p))
+        if dual: s += math.sqrt(d.dot(d))
+        if compl: s += math.sqrt( c )
+
+        return s
+
+    res.__doc__ = "{}{}{} error norms".format( 'primal' if primal else '',
+                                                 ' + dual' if dual else '',
+                                                 ' + complementarity' if compl else '' )
 
     return res
 
@@ -68,10 +80,10 @@ def minimum_norm( (M, q), **kwargs ):
     
     def res(x):
         
-        r[:] = q + M.dot(x)
-        m[:] = np.minimum(x, r)
+        r[:] = (q + M.dot(x)) 
+        m[:] = np.minimum(x * d, r)
         
-        return math.sqrt(m.dot(d * m))
+        return math.sqrt(m.dot(m))
 
     res.__doc__ = """primal/dual minimum norm{}""".format('*' if 'metric' in kwargs else '' )
     return res

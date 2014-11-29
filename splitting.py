@@ -33,7 +33,7 @@ def gs(x, A, b, **kwargs):
 def jacobi(x, A, b, **kwargs):
     """jacobi"""
 
-    d = np.diag(A)
+    d = kwargs.get('diag', np.diag(A))
     n = b.size
 
     omega = kwargs.get('omega', 2 / n)
@@ -55,7 +55,7 @@ def jacobi(x, A, b, **kwargs):
 
 def pgs(x, A, b, **kwargs):
     """projected gauss-seidel"""
-    d = np.diag(A)
+    d = kwargs.get('diag', np.diag(A))
     n = b.size
 
     omega = kwargs.get('omega', 1)
@@ -81,7 +81,7 @@ def pgs(x, A, b, **kwargs):
 def pjacobi(x, A, b, **kwargs):
     """projected jacobi"""
 
-    d = np.diag(A)
+    d = kwargs.get('diag', np.diag(A))
     n = b.size
 
     omega = kwargs.get('omega', 2 / float(n))
@@ -101,7 +101,7 @@ def pjacobi(x, A, b, **kwargs):
         delta[:] = x - old
         
         error = math.sqrt(delta.dot(delta))
-        yield error
+        yield 
         old[:] = x
 
 
