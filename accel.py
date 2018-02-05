@@ -582,3 +582,91 @@ def anderson( solver, **kwargs ):
                                                m,
                                                solver.__doc__)
     return res
+
+
+
+
+def bokhoven(x, (M, q), **kwargs):
+    '''bokhoven'''
+    
+    diag = np.diag(M)
+    prec = kwargs.get('prec', diag)
+
+    EpM = np.diag(prec) + M
+    EpMinv = np.linalg.inv(EpM)
+
+    n = q.size
+    z = np.zeros(n)
+    
+    while True:
+        zabs = np.abs(z)
+        z[:] = -zabs + EpMinv.dot(2 * prec * zabs - q)
+        x[:] = z + np.abs(z)
+        yield
+
+
+def bokhoven_gs(x, (M, q), **kwargs):
+    '''bokhoven gs'''
+
+    n = q.size
+    diag = np.diag(M)
+    
+    prec = kwargs.get('prec', diag)
+    EpM = np.diag(prec) + M    
+
+    EpMinv = np.linalg.inv(EpM)
+    
+    z = np.zeros(n)
+    zabs = np.abs(z)
+
+    while True:
+
+        for i in range(n):
+            z[i] = -zabs[i] + EpMinv[i, :].dot(2 * prec * zabs - q)
+            zabs[i] = abs(z[i])
+
+        x[:] = z + zabs
+        yield
+
+
+def bokhoven_chol(x, (M, q), **kwargs):
+    '''bokhoven chol'''
+
+    n = q.size
+    diag = np.diag(M)
+    
+    prec = kwargs.get('prec', diag)
+    EpM = np.diag(prec) + M    
+
+    L = np.linalg.cholesky(EpM)
+    
+    z = np.zeros(n)
+    zabs = np.abs(z)
+
+    Linv = np.linalg.inv(L)
+
+    # u = Linv.dot(2.0 * prec * zabs - q)
+    u = np.zeros(n)
+    while True:
+
+        # u = Linv.dot(2.0 * prec * zabs - q)
+        for i in range(n):
+            u[i] = ((2.0 * prec[i] * zabs[i] - q[i]) - L[i, :i].dot(u[:i])) / L[i, i]
+
+        # print(np.linalg.norm(L.dot(u) - (2 * prec * zabs - q)))
+            
+        for j in range(n):
+            i = n - 1 - j
+
+            # u = Linv.dot(2 * prec * zabs - q)
+            u[i] += ((2.0 * prec[i] * zabs[i] - q[i]) - L[i, :].dot(u)) / L[i, i]            
+            
+            # z[i] = Linv.T[i, :].dot(u) - zabs[i]
+            # z[i] += (u[i] - L.T[i, :].dot(zabs + z)) / L[i, i]
+            z[i] = -zabs[i] + (u[i] - L.T[i, i+1:].dot(z[i+1:] + zabs[i+1:])) / L[i, i]
+            
+            zabs[i] = abs(z[i])
+            
+        x[:] = z + zabs
+        yield
+

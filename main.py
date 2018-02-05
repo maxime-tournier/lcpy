@@ -77,15 +77,18 @@ def solvers( (M, q), **kwargs ):
         return res
     
     
-    return [ base,
-             accel.nlnscg(base, diag = opts['diag']),
+    return [ # base,
+             # accel.nlnscg(base, diag = opts['diag']),
              # accel.nlnscg_ls(base, **opts),
              # wrap(accel.cg_pjacobi, **opts),
-             wrap(accel.cr_pjacobi, **opts),
+             # wrap(accel.cr_pjacobi, **opts),
              # wrap(accel.doubidou, **opts),
              # accel.anderson(base, m = 4, reset = False), #  metric = opts['diag'] ),
-             wrap(accel.andy, **opts),
+             # wrap(accel.andy, **opts),
              pgs,
+             wrap(accel.bokhoven),
+             wrap(accel.bokhoven_gs),
+             wrap(accel.bokhoven_chol),        
              ] 
 
 
