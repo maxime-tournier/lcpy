@@ -610,10 +610,11 @@ def bokhoven_gs(x, (M, q), **kwargs):
 
     n = q.size
     diag = np.diag(M)
-    
     prec = kwargs.get('prec', diag)
-    EpM = np.diag(prec) + M    
+    # prec = np.ones(n)
 
+    
+    EpM = np.diag(prec) + M    
     EpMinv = np.linalg.inv(EpM)
     
     z = np.zeros(n)
@@ -622,8 +623,33 @@ def bokhoven_gs(x, (M, q), **kwargs):
     while True:
 
         for i in range(n):
-            z[i] = -zabs[i] + EpMinv[i, :].dot(2 * prec * zabs - q)
+            # z[i] = -zabs[i] + EpMinv[i, :].dot(2 * prec * zabs - q)
+            rhs = EpMinv[i, :].dot(2 * prec * zabs - q) - (2 * EpMinv[i, i] * prec[i] * zabs[i])
+
+            factor = lambda s: 1.0 + s * (1.0 - 2.0 * EpMinv[i, i] * prec[i])
+
+            fp = factor(1.0)
+            fm = factor(-1.0)
+            assert fp > 0
+            assert fm > 0
+            
+            zp = rhs / fp
+            zm = rhs / fm
+
+            zp_ok = zp > 0 
+            zm_ok = zm < 0
+            
+            if zp_ok and zm_ok:
+                print('both')
+            if not zm_ok and zm_ok:
+                print('none')
+
+            if zp_ok: z[i] = zp
+            elif zm_ok: z[i] = zm
+            else: z[i] = 0
+            
             zabs[i] = abs(z[i])
+            
 
         x[:] = z + zabs
         yield

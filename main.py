@@ -15,9 +15,9 @@ def parse_args():
 
     parser = argparse.ArgumentParser(description='benchmark LCP solvers')
     
-    parser.add_argument('file', nargs='+', help='filename for LCP data')
+    parser.add_argument('filenames', nargs='+', help='filename for LCP data')
 
-    parser.add_argument('--iter', type=int, default=100,
+    parser.add_argument('-n', '--iter', type=int, default=100,
                         help='iteration count')
     
     parser.add_argument('--fontsize', type=int, default=8,
@@ -26,12 +26,16 @@ def parse_args():
     parser.add_argument('--legend', type = int, default = 1,
                         help='enable/disable legend in plots')
 
-    parser.add_argument('--ms', type = int, default = 1,
+    parser.add_argument('--ms', type = int, default = 0,
                         help='use mass-splitting when available')
     
     
     parser.add_argument('--eps', type=float, default=1e-8,
                         help='precision')
+
+    parser.add_argument('-i', '--interactive', action = 'store_true',
+                        help='drop to a python shell once finished')
+
     
     return parser.parse_args()
 
@@ -101,8 +105,8 @@ iterations = args.iter
 precision = args.eps
 
 # plot setup
-cols = min(3, len(args.file) )
-rows = int(math.ceil(len(args.file) / float(cols)))
+cols = min(3, len(args.filenames) )
+rows = int(math.ceil(len(args.filenames) / float(cols)))
 
 import matplotlib
 from matplotlib import pyplot as plt
@@ -114,13 +118,12 @@ for param in [ 'axes.titlesize',
                'legend.fontsize' ]:
     matplotlib.rcParams[param] = args.fontsize
 
-_, plots = plt.subplots(rows, cols)
+# _, plots = plt.subplots(rows, cols)
+_, plots = plt.subplots()
 
-def bench(**kwargs):
-
-    for i, f in enumerate(args.file):
-
-        (M, q) = tool.load_lcp( f )
+def bench(filename, **kwargs):
+    
+        (M, q) = tool.load_lcp( filename )
 
         print 'symmetry check:', np.linalg.norm(M - M.transpose())
 
@@ -143,14 +146,14 @@ def bench(**kwargs):
                                   dual = False,
                                   compl = True )
 
-        error = metric.minimum_norm( (M, q) ) #metric = np.diag(M) )
+        error = metric.minimum_norm( (M, q) ) #, metric = np.diag(M) )
 
 
-        print 'file:', f
+        print 'file:', filename
         print 'dim:', q.size
         print 'metric:', error.__doc__
 
-        p = plots[ i / cols, i % cols ] if rows > 1 else plots[ i ] if cols > 1 else plots
+        p = plots #  i / cols, i % cols ] if rows > 1 else plots[ i ] if cols > 1 else plots
 
         np.random.seed()
         # initial = np.random.rand( q.size )
@@ -175,16 +178,23 @@ def bench(**kwargs):
 
             # plot
             p.plot( data, label = name )
-            p.set_title('{} (n = {})'.format(f, q.size))
+            p.set_title('{} (n = {})'.format(filename, q.size))
             p.set_yscale('log')
             if args.legend: p.legend()
 
-    plt.draw()
+        plt.draw()
+
 
 
 plt.ion()
-bench()
-plt.show()
-import code
-code.interact(None, None, locals())
+
+for filename in args.filenames:
+    bench(filename)
+    plt.show()
+    print('press enter to continue...')
+    raw_input()
+    
+if args.interactive:
+    import code
+    code.interact(None, None, locals())
 

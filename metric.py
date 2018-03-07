@@ -81,7 +81,7 @@ def minimum_norm( (M, q), **kwargs ):
     def res(x):
         
         r[:] = (q + M.dot(x)) 
-        m[:] = np.minimum(x * d, r)
+        m[:] = np.minimum(x, r)
         
         return math.sqrt(m.dot(m))
 
